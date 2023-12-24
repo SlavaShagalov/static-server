@@ -105,8 +105,10 @@ int tPoolStart(tPoolT *tPool) {
 
 int tPoolAddTask(tPoolT *tPool, taskT *task) {
     pthread_mutex_lock(tPool->qMutex);
+    // ===== CRITICAL SECTION =====
     int rc = queuePush(tPool->queue, task);
     sem_post(tPool->sem);
+    // ============================
     pthread_mutex_unlock(tPool->qMutex);
 
     if (rc != 0) {
@@ -120,12 +122,14 @@ int tPoolAddTask(tPoolT *tPool, taskT *task) {
 
 int tPoolStop(tPoolT *tPool) {
     pthread_mutex_lock(tPool->qMutex);
+    // ===== CRITICAL SECTION =====
     tPool->stopping = true;
+    logInfo("Stopping flag is set");
     for (int i = 0; i < tPool->nThreads; ++i) {
         sem_post(tPool->sem);
     }
+    // ============================
     pthread_mutex_unlock(tPool->qMutex);
-    logInfo("stopping flag is set");
 
     struct timespec timeout;
     clock_gettime(CLOCK_REALTIME, &timeout);
@@ -183,14 +187,12 @@ void *routine(void *args) {
         }
 
         pthread_mutex_lock(pool->qMutex);
-
         // ===== CRITICAL SECTION =====
         int rc = queuePop(pool->queue, &task);
         if (rc != -1) {
             logDebug("task taken (q len = %d)", pool->queue->len);
         }
         // ============================
-
         pthread_mutex_unlock(pool->qMutex);
 
         if (rc < 0) {

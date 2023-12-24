@@ -116,6 +116,7 @@ int print_file(const char *fstr, logLevelT level, va_list argptr) {
     localtime_r(&t, &local);
 
     pthread_mutex_lock(logger.mutex);
+    // ===== CRITICAL SECTION =====
     if (dprintf(logger.fd, "[%02d/%02d/%dT%02d:%02d:%02d] --- [%s] --- [%s] --- ", local.tm_mday, local.tm_mon + 1,
                 local.tm_year + 1900, local.tm_hour, local.tm_min, local.tm_sec, threadName,
                 ltostr(level)) < 0) {
@@ -128,6 +129,7 @@ int print_file(const char *fstr, logLevelT level, va_list argptr) {
         return -1;
     }
     int rc = dprintf(logger.fd, "\n");
+    // ============================
     pthread_mutex_unlock(logger.mutex);
 
     return rc;
@@ -138,6 +140,7 @@ void print_stdout(const char *fstr, logLevelT level, va_list argptr) {
     struct tm *local = localtime(&t);
 
     pthread_mutex_lock(logger.mutex);
+    // ===== CRITICAL SECTION =====
     if (level == ERROR) {
         printf("%02d-%02d-%d %02d:%02d:%02d \033[1;31m%-5s\033[0m %s ",
                local->tm_mday, local->tm_mon + 1, local->tm_year + 1900,
@@ -161,6 +164,7 @@ void print_stdout(const char *fstr, logLevelT level, va_list argptr) {
     }
     vprintf(fstr, argptr);
     printf("\n");
+    // ============================
     pthread_mutex_unlock(logger.mutex);
 }
 
