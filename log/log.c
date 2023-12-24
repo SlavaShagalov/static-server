@@ -104,9 +104,9 @@ void log_trace(const char *fstr, ...) {
 }
 
 void print(const char *fstr, log_level_t level, va_list argptr) {
-    if (print_file(fstr, level, argptr) < 0) {
-        print_stdout(fstr, level, argptr);
-    }
+//    if (print_file(fstr, level, argptr) < 0) {
+    print_stdout(fstr, level, argptr);
+//    }
 }
 
 int print_file(const char *fstr, log_level_t level, va_list argptr) {
@@ -122,6 +122,7 @@ int print_file(const char *fstr, log_level_t level, va_list argptr) {
         pthread_mutex_unlock(logger.mutex);
         return -1;
     }
+
     if (vdprintf(logger.fd, fstr, argptr) < 0) {
         pthread_mutex_unlock(logger.mutex);
         return -1;
@@ -137,10 +138,29 @@ void print_stdout(const char *fstr, log_level_t level, va_list argptr) {
     struct tm *local = localtime(&t);
 
     pthread_mutex_lock(logger.mutex);
-    printf("[%02d/%02d/%dT%02d:%02d:%02d] --- [%s] --- [%s]\t", local->tm_mday, local->tm_mon + 1,
-           local->tm_year + 1900, local->tm_hour, local->tm_min, local->tm_sec, thread_name,
-           ltostr(level));
+    if (level == ERROR) {
+        printf("%02d-%02d-%d %02d:%02d:%02d \033[1;31m%-5s\033[0m %s ",
+               local->tm_mday, local->tm_mon + 1, local->tm_year + 1900,
+               local->tm_hour, local->tm_min, local->tm_sec,
+               ltostr(level), thread_name);
+    } else if (level == INFO) {
+        printf("%02d-%02d-%d %02d:%02d:%02d \033[0;34m%-5s\033[0m %s ",
+               local->tm_mday, local->tm_mon + 1, local->tm_year + 1900,
+               local->tm_hour, local->tm_min, local->tm_sec,
+               ltostr(level), thread_name);
+    } else if (level == WARN) {
+        printf("%02d-%02d-%d %02d:%02d:%02d \033[0;33m%-5s\033[0m %s ",
+               local->tm_mday, local->tm_mon + 1, local->tm_year + 1900,
+               local->tm_hour, local->tm_min, local->tm_sec,
+               ltostr(level), thread_name);
+    } else {
+        printf("%02d-%02d-%d %02d:%02d:%02d %-5s %s ",
+               local->tm_mday, local->tm_mon + 1, local->tm_year + 1900,
+               local->tm_hour, local->tm_min, local->tm_sec,
+               ltostr(level), thread_name);
+    }
     vprintf(fstr, argptr);
+    printf("\n");
     pthread_mutex_unlock(logger.mutex);
 }
 
