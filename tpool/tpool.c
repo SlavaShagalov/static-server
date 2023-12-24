@@ -163,12 +163,6 @@ routine_args_t *new_args(tpool_t *pool, int num) {
     return args;
 }
 
-void s_wait(sem_t *sem, pthread_mutex_t *mutex) {
-    pthread_mutex_unlock(mutex);
-    sem_wait(sem);
-    pthread_mutex_lock(mutex);
-}
-
 void *routine(void *args) {
     routine_args_t *r_args = (routine_args_t *) args;
     tpool_t *pool = r_args->pool;
@@ -181,21 +175,24 @@ void *routine(void *args) {
     thread_name = name;
 
     while (true) {
-        pthread_mutex_lock(pool->q_mutex);
-
-        s_wait(pool->sem, pool->q_mutex);
+        sem_wait(pool->sem);
 
         if (pool->stop) {
-            pthread_mutex_unlock(pool->q_mutex);
             log_debug("stopped");
             break;
         }
 
+        pthread_mutex_lock(pool->q_mutex);
+
+        // ===== CRITICAL SECTION =====
         int rc = pop(pool->queue, &task);
         if (rc != -1) {
             log_debug("task taken (q len = %d)", pool->queue->len);
         }
+        // ============================
+
         pthread_mutex_unlock(pool->q_mutex);
+
         if (rc < 0) {
             continue;
         }
