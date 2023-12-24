@@ -8,28 +8,28 @@
 
 #define ERR_FSTR "%s: %s"
 
-thread_local extern const char *thread_name;
+thread_local extern const char *threadName;
 
-typedef enum log_level_t {
+typedef enum logLevel {
     FATAL = 0, ERROR, WARN, INFO, DEBUG, TRACE
-} log_level_t;
+} logLevelT;
 
-int log_init();
+int logInit();
 
-void log_free();
+void logFree();
 
-void set_log_fd(int fd);
+void logSetFd(int fd);
 
-void set_log_level(log_level_t level);
+void logSetLevel(logLevelT level);
 
-void log_debug(const char *fstr, ...);
+void logDebug(const char *fstr, ...);
 
-void log_info(const char *fstr, ...);
+void logInfo(const char *fstr, ...);
 
-void log_warn(const char *fstr, ...);
+void logWarn(const char *fstr, ...);
 
-void log_error(const char *fstr, ...);
+void logError(const char *fstr, ...);
 
-void log_fatal(const char *fstr, ...);
+void logFatal(const char *fstr, ...);
 
-void log_trace(const char *fstr, ...);
+void logTrace(const char *fstr, ...);

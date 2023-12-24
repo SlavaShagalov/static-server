@@ -1,28 +1,28 @@
 #include "queue.h"
 #include "../log/log.h"
 
-q_node_t *new_q_node_t(task_t *task);
+qNodeT *new_q_node_t(taskT *task);
 
-void free_q_node_t(q_node_t *node);
+void free_q_node_t(qNodeT *node);
 
-task_t *extract_q_node_t(q_node_t *node);
+taskT *extract_q_node_t(qNodeT *node);
 
-queue_t *new_queue_t() {
-    return calloc(1, sizeof(queue_t));
+queueT *queueNew() {
+    return calloc(1, sizeof(queueT));
 }
 
-void free_queue_t(queue_t *queue) {
-    q_node_t *cur = queue->front;
+void queueFree(queueT *queue) {
+    qNodeT *cur = queue->front;
     while (cur != NULL) {
-        q_node_t *next = cur->next;
+        qNodeT *next = cur->next;
         free_q_node_t(cur);
         cur = next;
     }
     free(queue);
 }
 
-int push(queue_t *queue, task_t *task) {
-    q_node_t *node = new_q_node_t(task);
+int queuePush(queueT *queue, taskT *task) {
+    qNodeT *node = new_q_node_t(task);
     if (node == NULL) return -1;
 
     if (queue->back == NULL) {
@@ -34,43 +34,43 @@ int push(queue_t *queue, task_t *task) {
     }
 
     queue->len++;
-    queue->t_push++;
-    log_info("task pushed to queue (len = %d, total = %d)", queue->len, queue->t_push);
+    queue->totalPush++;
+    logInfo("task pushed to queue (len = %d, total = %d)", queue->len, queue->totalPush);
 
     return 0;
 }
 
-int pop(queue_t *queue, task_t *task) {
+int queuePop(queueT *queue, taskT *task) {
     if (queue->front == NULL) {
-        log_warn("pop from empty queue (len = %d)", queue->len);
+        logWarn("queuePop from queueEmpty queue (len = %d)", queue->len);
         return -1;
     }
 
-    q_node_t *node = queue->front;
+    qNodeT *node = queue->front;
     queue->front = queue->front->next;
     if (queue->front == NULL) {
         queue->back = NULL;
     }
 
     queue->len--;
-    queue->t_get++;
-    log_info("task extracted from queue (len = %d, total = %d)", queue->len, queue->t_get);
+    queue->totalPop++;
+    logInfo("task extracted from queue (len = %d, total = %d)", queue->len, queue->totalPop);
 
-    task_t *tmp_task = extract_q_node_t(node);
-    memcpy(task, tmp_task, sizeof(task_t));
+    taskT *tmp_task = extract_q_node_t(node);
+    memcpy(task, tmp_task, sizeof(taskT));
     free(tmp_task);
 
     return 0;
 }
 
-int empty(queue_t *queue) {
+int queueEmpty(queueT *queue) {
     return queue->front == NULL;
 }
 
-q_node_t *new_q_node_t(task_t *task) {
-    q_node_t *node = calloc(1, sizeof(q_node_t));
+qNodeT *new_q_node_t(taskT *task) {
+    qNodeT *node = calloc(1, sizeof(qNodeT));
     if (node == NULL) {
-        log_error(ERR_FSTR, "node alloc failed", strerror(errno));
+        logError(ERR_FSTR, "node alloc failed", strerror(errno));
         return NULL;
     }
 
@@ -79,13 +79,13 @@ q_node_t *new_q_node_t(task_t *task) {
     return node;
 }
 
-void free_q_node_t(q_node_t *node) {
+void free_q_node_t(qNodeT *node) {
     free(node->task);
     free(node);
 }
 
-task_t *extract_q_node_t(q_node_t *node) {
-    task_t *task = node->task;
+taskT *extract_q_node_t(qNodeT *node) {
+    taskT *task = node->task;
     free(node);
     return task;
 }

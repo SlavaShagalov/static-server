@@ -5,8 +5,8 @@ set(CMAKE_C_STANDARD 11)
 
 add_executable(server
         main.c
-        tpool/tpool.c
-        tpool/tpool.h
+        tpool/t_pool.c
+        tpool/t_pool.h
         queue/task.h
         constants.h
         queue/queue.c

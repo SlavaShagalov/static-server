@@ -6,11 +6,11 @@
 #include "constants.h"
 #include "server/server.h"
 
-http_server_t *server = NULL;
+httpServerT *server = NULL;
 
-void sig_handler(int signum) {
+void sigHandler(int signum) {
     printf("received signal %d\n", signum);
-    free_http_server_t(server);
+    httpServerFree(server);
     exit(0);
 }
 
@@ -19,24 +19,24 @@ int main() {
     printf("pid: %d\n", getpid());
 
     // Logger
-    if (log_init() < 0) {
+    if (logInit() < 0) {
         return -1;
     }
-    set_log_level(INFO);
+    logSetLevel(INFO);
 
     // Server
-    signal(SIGINT, sig_handler);
-    signal(SIGTERM, sig_handler);
-    signal(SIGKILL, sig_handler);
-    signal(SIGHUP, sig_handler);
+    signal(SIGINT, sigHandler);
+    signal(SIGTERM, sigHandler);
+    signal(SIGKILL, sigHandler);
+    signal(SIGHUP, sigHandler);
     signal(SIGPIPE, SIG_IGN);
 
-    server = new_http_server(ip, port, n_threads, wd);
+    server = httpServerNew(ipAddress, port, nThreads, wd);
     if(server == NULL) {
         return -1;
     }
-    if (run_http_server_t(server) < 0) {
-        free_http_server_t(server);
+    if (httpServerStart(server) < 0) {
+        httpServerFree(server);
     }
 
     return 0;

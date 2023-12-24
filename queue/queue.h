@@ -6,26 +6,26 @@
 
 #include "task.h"
 
-typedef struct q_node q_node_t;
+typedef struct qNode qNodeT;
 
-struct q_node {
-    task_t *task;
-    q_node_t *next;
+struct qNode {
+    taskT *task;
+    qNodeT *next;
 };
 
 typedef struct queue {
-    q_node_t *front;
-    q_node_t *back;
+    qNodeT *front;
+    qNodeT *back;
     int len;
-    int t_get, t_push;
-} queue_t;
+    int totalPop, totalPush;
+} queueT;
 
-queue_t *new_queue_t();
+queueT *queueNew();
 
-void free_queue_t(queue_t *queue);
+void queueFree(queueT *queue);
 
-int push(queue_t *queue, task_t *task);
+int queuePush(queueT *queue, taskT *task);
 
-int pop(queue_t *queue, task_t *task);
+int queuePop(queueT *queue, taskT *task);
 
-int empty(queue_t *queue);
+int queueEmpty(queueT *queue);

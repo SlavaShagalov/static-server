@@ -11,13 +11,13 @@
 
 #define URL_LEN 128
 
-typedef enum request_method {
+typedef enum requestMethod {
     BAD, GET, HEAD
 } request_method_t;
 
 typedef struct request {
     request_method_t method;
     char url[URL_LEN];
-} request_t;
+} requestT;
 
-int parse_req(request_t *req, char *buff);
+int parse_req(requestT *req, char *buff);

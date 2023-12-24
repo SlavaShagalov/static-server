@@ -12,10 +12,10 @@
 #define REQ_SIZE 2048
 #define RESP_SIZE 1024
 
-int listen_net(char *host, int port);
+int netListen(char *host, int port);
 
-int accept_net(int listen_sock);
+int netAccept(int listen_sock);
 
-ssize_t write_net(int fd, const void *buf, size_t n);
+ssize_t netWrite(int fd, const void *buf, size_t n);
 
-ssize_t read_net(int fd, void *buf, size_t n);
+ssize_t netRead(int fd, void *buf, size_t n);

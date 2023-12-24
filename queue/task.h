@@ -2,11 +2,11 @@
 
 #include <poll.h>
 
-typedef void (*handler_t)(int, char *);
+typedef void (*handlerT)(int, char *);
 
 typedef struct task {
-    handler_t handler;
+    handlerT handler;
 
     int conn;
     char* wd;
-} task_t;
+} taskT;
